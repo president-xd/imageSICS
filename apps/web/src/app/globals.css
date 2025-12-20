@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #2b2b2b;
+  --foreground: #e0e0e0;
+  --panel-bg: #323232;
+  --border: #444444;
+  --accent: #3daee9;
+  --accent-hover: #5bbff0;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden; /* For app-like feel */
+}
+
+/* FlexLayout Overrides */
+.flexlayout__layout {
+   background-color: var(--background);
+}
+.flexlayout__tab {
+   background-color: var(--panel-bg);
+}
+.flexlayout__tabset_header {
+   background-color: #252525;
+}
+.flexlayout__splitter {
+   background-color: var(--border);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "imagesics-api"
+version = "0.1.0"
+description = "FastAPI backend for imageSICS"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart",
+    "unidecode",
+    "imagesics-core"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "httpx"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/imagesics_api"]

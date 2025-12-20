@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "imagesics-core"
+version = "0.1.0"
+description = "Core forensic logic for imageSICS"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "opencv-python-headless",
+    "Pillow",
+    "scipy",
+    "matplotlib",
+    "scikit-learn",
+    "PyWavelets",
+    "pydantic",
+    "rawpy"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "mypy"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/imagesics_core"]
