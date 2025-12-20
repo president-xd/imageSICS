@@ -15,7 +15,8 @@ export const DigestPanel = ({ image }: { image: any }) => {
                 const res = await axios.post('/api/forensic/digest', {
                     image_path: image.fullPath
                 });
-                setReport(res.data);
+                // Format the response as JSON string for display
+                setReport(JSON.stringify(res.data, null, 2));
             } catch (err) {
                 console.error(err);
                 setReport("Failed to generate digest.");
