@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Tailwind Directives - Using CDN in layout, but custom styles here */
+:root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 142.1 76.2% 36.3%;
+    /* Green accent from screenshots */
+    --accent-hover: 142.1 70% 30%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    overflow: hidden;
+    /* App-like feel */
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Utilities for Tailwind CDN config mapping */
+.bg-bg-panel {
+    background-color: hsl(var(--card));
+}
+
+.bg-bg-input {
+    background-color: hsl(var(--input));
+}
+
+.text-text-primary {
+    color: hsl(var(--foreground));
+}
+
+.text-text-secondary {
+    color: hsl(var(--muted-foreground));
+}
+
+.text-text-muted {
+    color: hsl(var(--muted-foreground));
+}
+
+.border-border {
+    border-color: hsl(var(--border));
+}
+
+.text-accent {
+    color: hsl(var(--accent));
+}
+
+.bg-accent {
+    background-color: hsl(var(--accent));
+}
+
+.bg-accent-hover:hover {
+    background-color: hsl(var(--accent-hover));
+}

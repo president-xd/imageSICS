@@ -1,91 +1,58 @@
-# imageSICS: Web-Based Forensic Analysis Suite
+# imageSICS: Flask-Based Forensic Analysis Suite
 
-**imageSICS** is a comprehensive, web-based image forensic testing suite designed to be the modern successor to the Sherloq desktop application. It provides a robust set of 32 distinct forensic tools for analyzing digital images, detecting tampering, and verifying authenticity.
+**imageSICS** is a comprehensive, web-based image forensic testing suite designed as a modern successor to the Sherloq desktop application. It provides a robust set of 32 distinct forensic tools for analyzing digital images, detecting tampering, and verifying authenticity.
 
 ## 🚀 Overview
 
-- **Architecture**: Modern Monorepo (Python/FastAPI Backend + React/Next.js Frontend).
-- **Interface**: "Dock"-style modular UI allowing infinite customization of the workspace.
-- **Core**: High-performance OpenCV and NumPy algorithms ported directly from proven forensic implementations.
-- **Parity**: **100% Feature Parity** with the original desktop suite.
+- **Architecture**: Flask-based monolith application with server-side rendering
+- **Interface**: Modern dark-themed UI with collapsible tool navigation
+- **Core**: High-performance OpenCV and NumPy algorithms ported from proven forensic implementations
+- **Parity**: **100% Feature Parity** with the original desktop suite
 
 ## 🛠️ Technology Stack
 
 | Component | Tech | Description |
 |-----------|------|-------------|
 | **Core** | Python 3.9+ | Main logic library (`imagesics-core`) |
-| **Back** | FastAPI | High-performance async REST API |
-| **Front** | Next.js 14 | React-based UI with TailwindCSS |
-| **Layout**| FlexLayout | Draggable, dockable panel management |
-| **Build** | Hatch/Poetry | Python package management |
+| **Backend** | Flask | Lightweight web framework with REST API |
+| **Frontend** | Jinja2 + Vanilla JS | Server-side templates with modern JavaScript |
+| **Charts** | Chart.js | Interactive data visualization |
+| **Icons** | Lucide | Modern icon library |
 
 ---
 
 ## 📦 Installation & Setup
 
 ### Prerequisites
-- **Python 3.10+**: Required for the backend.
-- **Node.js 20+**: Required for the frontend (Provided locally in project).
+- **Python 3.10+**: Required for the backend and forensic algorithms
 
-### 1. Backend Setup
-The backend handles all forensic analysis and file processing.
+### Setup
 
 ```bash
 # 1. Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 2. Install dependencies (Core & API)
+# 2. Install core package
 pip install -e packages/imagesics-core
-pip install -e apps/api
-pip install uvicorn python-multipart
 
-# Note: If venv creation fails due to missing system packages, 
-# you can install globally for your user:
-# pip install --user -e packages/imagesics-core
-# pip install --user -e apps/api
-# pip install --user uvicorn python-multipart
-```
-
-### 2. Frontend Setup
-The frontend is a Next.js application located in `apps/web`.
-
-```bash
-# 1. Setup usage of local Node.js binary (recommended)
-export PATH=$PWD/node-v20.10.0-linux-x64/bin:$PATH
-
-# 2. Install dependencies
-cd apps/web
-npm install
+# 3. Install Flask and dependencies
+pip install Flask Flask-CORS python-multipart
 ```
 
 ---
 
 ## ▶️ Running the Application
 
-You will need two terminal windows running simultaneously.
-
-### Terminal 1: API Server
-Starts the backend server on port 8000.
+**Single command to start the server:**
 
 ```bash
-# From the project root
-source .venv/bin/activate  # If using venv
-uvicorn imagesics_api.main:app --app-dir apps/api/src --reload --port 8000 --host 127.0.0.1
+cd apps/monolith
+python3 app.py
 ```
 
-### Terminal 2: Web Interface
-Starts the frontend development server on port 3000.
-
-```bash
-# From the project root
-export PATH=$PWD/node-v20.10.0-linux-x64/bin:$PATH
-cd apps/web
-npm run dev
-```
-
-Once both are running, open your browser and access the suite at:
-👉 **http://localhost:3000**
+Once running, open your browser and access the suite at:
+👉 **http://localhost:8000**
 
 ---
 

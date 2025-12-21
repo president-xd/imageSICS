@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="main-layout">
+    <!-- Left Sidebar - Tool Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-pulse"></div>
+                <h1>imageSICS</h1>
+            </div>
+
+            <!-- Upload Button -->
+            <input type="file" id="fileInput" class="hidden" accept="image/*">
+            <button id="uploadBtn" class="btn-primary">
+                <i data-lucide="upload-cloud"></i>
+                <span>Load Evidence</span>
+            </button>
+        </div>
+
+        <!-- Tool Categories -->
+        <nav class="tool-nav">
+            {% for category in tools %}
+            <div class="tool-category">
+                <button class="category-header" data-category="{{ category.name }}">
+                    <i data-lucide="chevron-down" class="chevron"></i>
+                    <span>{{ category.name }}</span>
+                </button>
+                <div class="tool-list" id="category-{{ category.name }}">
+                    {% for tool in category.tool_list %}
+                    <button class="tool-item" data-tool="{{ tool }}" data-category="{{ category.name }}">
+                        {{ tool }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </nav>
+
+        <!-- Footer -->
+        <div class="sidebar-footer">
+            <span>v3.0.0 • Flask Edition</span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <i data-lucide="image" class="empty-icon"></i>
+            <h2>No Image Loaded</h2>
+            <p>Upload an image to begin forensic analysis</p>
+        </div>
+
+        <!-- Image Viewer -->
+        <div id="imageViewer" class="image-viewer hidden">
+            <div class="viewer-toolbar">
+                <div class="image-info">
+                    <span id="imageName">-</span>
+                    <span id="imageDimensions" class="text-muted">-</span>
+                </div>
+                <div class="viewer-controls">
+                    <button id="zoomIn" class="icon-btn" title="Zoom In">
+                        <i data-lucide="zoom-in"></i>
+                    </button>
+                    <button id="zoomOut" class="icon-btn" title="Zoom Out">
+                        <i data-lucide="zoom-out"></i>
+                    </button>
+                    <button id="resetZoom" class="icon-btn" title="Reset">
+                        <i data-lucide="maximize"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="viewer-canvas" id="viewerCanvas">
+                <img id="mainImage" src="" alt="Evidence Image">
+            </div>
+        </div>
+    </main>
+
+    <!-- Right Panel - Tool Interface -->
+    <aside id="toolPanel" class="tool-panel">
+        <div class="panel-header">
+            <h3 id="toolTitle">Tool</h3>
+            <button id="closePanel" class="icon-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="panel-content" id="toolContent">
+            <div class="panel-loading">
+                <i data-lucide="loader-2" class="spinner"></i>
+                <p>Loading tool...</p>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Global state
+    window.appState = {
+        currentImage: null,
+        currentImagePath: null,
+        currentTool: null,
+        zoom: 1.0
+    };
+</script>
+{% endblock %}
