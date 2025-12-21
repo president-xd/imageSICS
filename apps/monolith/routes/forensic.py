@@ -110,39 +110,161 @@ def run_digest():
 
 @forensic_bp.route('/reverse', methods=['POST'])
 def run_reverse_search():
-    """Similar image search using perceptual hashing."""
+    """Similar image search using perceptual hashing + internet search."""
     try:
         req_path = request.json.get('image_path')
+        search_mode = request.json.get('search_mode', 'local')  # 'local', 'internet', 'both'
+        
         if not req_path:
-             return jsonify({"results": []})
-
+            return jsonify({"local_results": [], "internet_results": []})
+        
+        # Load query image path
         if req_path.startswith("/storage"):
-             clean = req_path.replace("/storage", "", 1).lstrip("/")
-             query_path = STORAGE_DIR / clean
+            clean = req_path.replace("/storage", "", 1).lstrip("/")
+            query_path = STORAGE_DIR / clean
         else:
-             query_path = Path(req_path)
-
+            query_path = Path(req_path)
+        
         if not query_path.exists():
-             return jsonify({"results": []})
-             
-        img = cv.imread(str(query_path))
+            return jsonify({"local_results": [], "internet_results": []})
         
-        # Scan uploads directory for similar images
-        uploads_dir = STORAGE_DIR / "uploads"
-        results = []
-        for entry in uploads_dir.glob("*"):
-            if entry.is_file() and entry.suffix.lower() in ['.jpg', '.png', '.jpeg']:
-                results.append({
-                    "id": entry.name,
-                    "thumbnailUrl": f"/storage/uploads/{entry.name}",
-                    "similarity": 1.0 if entry.name == query_path.name else 0.5 
-                })
+        local_results = []
+        internet_results = []
         
-        return jsonify({"results": results})
-
+        # Local search
+        if search_mode in ['local', 'both']:
+            query_img = cv.imread(str(query_path))
+            
+            # Compute perceptual hash of query image
+            from PIL import Image
+            import imagehash
+            
+            query_img_rgb = cv.cvtColor(query_img, cv.COLOR_BGR2RGB)
+            query_pil = Image.fromarray(query_img_rgb)
+            query_hash = imagehash.phash(query_pil)
+            
+            # Search local database
+            uploads_dir = STORAGE_DIR / "uploads"
+            
+            for entry in uploads_dir.glob("*"):
+                if not entry.is_file() or entry.suffix.lower() not in ['.jpg', '.png', '.jpeg', '.webp']:
+                    continue
+                
+                # Skip the query image itself
+                try:
+                    if entry.samefile(query_path):
+                        continue
+                except:
+                    pass
+                
+                try:
+                    # Compute hash of candidate image
+                    candidate_img = cv.imread(str(entry))
+                    if candidate_img is None:
+                        continue
+                        
+                    candidate_rgb = cv.cvtColor(candidate_img, cv.COLOR_BGR2RGB)
+                    candidate_pil = Image.fromarray(candidate_rgb)
+                    candidate_hash = imagehash.phash(candidate_pil)
+                    
+                    # Hamming distance (0 = identical, 64 = completely different)
+                    distance = query_hash - candidate_hash
+                    
+                    # Convert to similarity score (0-1, where 1 = identical)
+                    similarity = 1.0 - (distance / 64.0)
+                    
+                    # Only include if similarity > 70%
+                    if similarity > 0.7:
+                        local_results.append({
+                            "filename": entry.name,
+                            "thumbnailUrl": f"/storage/uploads/{entry.name}",
+                            "similarity": float(similarity),
+                            "hash_distance": int(distance)
+                        })
+                except Exception as e:
+                    continue
+            
+            # Sort by similarity (highest first)
+            local_results.sort(key=lambda x: x['similarity'], reverse=True)
+        
+        # Internet search
+        if search_mode in ['internet', 'both']:
+            try:
+                from imagesics_core.forensic.internet_search import perform_internet_search
+                
+                # Perform internet search
+                search_results = perform_internet_search(str(query_path))
+                
+                # Format results for frontend
+                for engine, results in search_results.items():
+                    if engine == 'total_matches':
+                        continue
+                    
+                    for result in results:
+                        internet_results.append({
+                            "engine": engine.capitalize(),
+                            "title": result.get('title', 'No title'),
+                            "url": result.get('url', ''),
+                            "source": result.get('source', engine.capitalize()),
+                            "snippet": result.get('snippet', ''),
+                            "thumbnail": result.get('thumbnail')
+                        })
+                
+            except Exception as e:
+                print(f"Internet search error: {e}")
+            
+            # Always provide manual search engine links as fallback
+            # This ensures users can always search even if API fails
+            if len(internet_results) == 0:
+                internet_results = [
+                    {
+                        "engine": "Google",
+                        "title": "Search on Google Images",
+                        "url": "https://www.google.com/imghp?hl=en&ogbl",
+                        "source": "Manual Upload Required",
+                        "snippet": "Click camera icon in search bar, then upload your image",
+                        "thumbnail": None,
+                        "is_link": True
+                    },
+                    {
+                        "engine": "TinEye",
+                        "title": "Search on TinEye",
+                        "url": "https://tineye.com/",
+                        "source": "Manual Upload Required",
+                        "snippet": "Click the upload arrow icon, then select your image file",
+                        "thumbnail": None,
+                        "is_link": True
+                    },
+                    {
+                        "engine": "Bing",
+                        "title": "Search on Bing Visual Search",
+                        "url": "https://www.bing.com/visualsearch",
+                        "source": "Manual Upload Required",
+                        "snippet": "Click 'Upload an image' button, then select your image",
+                        "thumbnail": None,
+                        "is_link": True
+                    },
+                    {
+                        "engine": "Yandex",
+                        "title": "Search on Yandex Images",
+                        "url": "https://yandex.com/images/",
+                        "source": "Manual Upload Required",
+                        "snippet": "Click camera icon in search bar, then upload your image",
+                        "thumbnail": None,
+                        "is_link": True
+                    }
+                ]
+        
+        return jsonify({
+            "local_results": local_results,
+            "internet_results": internet_results,
+            "search_mode": search_mode
+        })
+        
     except Exception as e:
-        print(e)
-        return jsonify({"results": [], "error": str(e)})
+        print(f"Reverse search error: {e}")
+        return jsonify({"local_results": [], "internet_results": [], "error": str(e)})
+
 
 # ============================================================================
 # METADATA TOOLS

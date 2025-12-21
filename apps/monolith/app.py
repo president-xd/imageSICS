@@ -1,6 +1,10 @@
 import os
 from flask import Flask, render_template, send_from_directory
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize Flask App
 app = Flask(__name__, static_folder='static', template_folder='templates')

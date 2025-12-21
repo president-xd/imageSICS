@@ -304,29 +304,157 @@ async function showHexEditor(container) {
 }
 
 async function showSimilarSearch(container) {
+    container.innerHTML = `
+        <h4>Similar Image Search</h4>
+        <p class="text-muted">Find duplicate or similar images locally and on the internet</p>
+        
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="display: block; margin-bottom: 0.5rem;">Search Mode:</label>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label style="cursor: pointer;">
+                    <input type="radio" name="searchMode" value="local" checked style="margin-right: 8px;">
+                    Local Database Only
+                </label>
+                <label style="cursor: pointer;">
+                    <input type="radio" name="searchMode" value="internet" style="margin-right: 8px;">
+                    Internet Only
+                </label>
+                <label style="cursor: pointer;">
+                    <input type="radio" name="searchMode" value="both" style="margin-right: 8px;">
+                    Both (Local + Internet)
+                </label>
+            </div>
+        </div>
+        
+        <button class="btn-primary" onclick="performSimilarSearch()">Search</button>
+        <div id="searchResults" style="margin-top: 1rem;"></div>
+    `;
+}
+
+async function performSimilarSearch() {
+    const searchMode = document.querySelector('input[name="searchMode"]:checked').value;
+    const resultsDiv = document.getElementById('searchResults');
+
+    const searchText = searchMode === 'local' ? 'local database' :
+        searchMode === 'internet' ? 'internet' :
+            'local database and internet';
+    resultsDiv.innerHTML = `<p class="text-muted">Searching ${searchText}...</p>`;
+
     try {
         const response = await fetch('/api/forensic/reverse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image_path: window.appState.currentImagePath })
+            body: JSON.stringify({
+                image_path: window.appState.currentImagePath,
+                search_mode: searchMode
+            })
         });
 
         const data = await response.json();
 
-        if (data.results && data.results.length > 0) {
-            const resultsHTML = data.results.map(r => `
-                <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px;">
-                    <img src="${r.thumbnailUrl}" style="width: 100%; border-radius: 4px; margin-bottom: 0.5rem;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted);">Similarity: ${(r.similarity * 100).toFixed(1)}%</p>
-                </div>
-            `).join('');
+        let html = '';
 
-            container.innerHTML = `<h4>Similar Images</h4>${resultsHTML}`;
-        } else {
-            container.innerHTML = `<p>No similar images found.</p>`;
+        // Local results
+        if (data.local_results && data.local_results.length > 0) {
+            html += '<h4 style="margin-top: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 4px;">📁 Local Database Matches</h4>';
+            html += `<p class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.5rem;">Found ${data.local_results.length} similar image(s)</p>`;
+
+            data.local_results.forEach(r => {
+                const similarityPercent = (r.similarity * 100).toFixed(1);
+                const similarityColor = r.similarity > 0.95 ? '#00aa00' : r.similarity > 0.85 ? '#ff8800' : '#666666';
+
+                html += `
+                    <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px; border-left: 3px solid ${similarityColor};">
+                        <img src="${r.thumbnailUrl}" style="width: 100%; border-radius: 4px; margin-bottom: 0.5rem; cursor: pointer;" onclick="window.open('${r.thumbnailUrl}', '_blank')">
+                        <table class="result-table" style="font-size: 0.7rem; margin: 0;">
+`;
+            });
+        } else if (searchMode === 'local' || searchMode === 'both') {
+            html += '<p class="text-muted">No similar images found in local database (>70% similarity threshold).</p>';
         }
+
+        // Internet results
+        if (data.internet_results && data.internet_results.length > 0) {
+            html += '<h4 style="margin-top: 1.5rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 4px;">🌐 Internet Reverse Image Search</h4>';
+
+            // Show thumbnail of the image being searched with download button
+            html += `
+                <div style="margin-bottom: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
+                    <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; font-weight: 600;">Image to Search:</p>
+                    <img src="${window.appState.currentImagePath}" style="max-width: 200px; max-height: 200px; border-radius: 4px; display: block; margin-bottom: 0.75rem; border: 2px solid var(--accent-blue);">
+                    
+                    <a href="${window.appState.currentImagePath}" download="${window.appState.currentImage}" class="btn-primary" style="display: inline-block; padding: 0.5rem 1rem; text-decoration: none; margin-bottom: 0.75rem;">
+                        📥 Download Image
+                    </a>
+                    
+                    <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 4px; border-left: 3px solid #ff8800;">
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+                            <strong style="color: var(--text-primary);">⚠️ Manual Upload Required:</strong><br>
+                            1. Click "Download Image" button above to save the image<br>
+                            2. Click a search engine link below<br>
+                            3. Upload the downloaded image on that site<br>
+                            4. View results showing where this image appears online
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            html += `<p class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.5rem; font-weight: 600;">Available Search Engines (${data.internet_results.length}):</p>`;
+
+            data.internet_results.forEach(r => {
+                const isLink = r.is_link || false;
+                const iconMap = {
+                    'Google': '🔍',
+                    'Bing': '🔎',
+                    'Tineye': '👁️',
+                    'Yandex': '🔍'
+                };
+                const icon = iconMap[r.engine] || '🔗';
+
+                if (isLink) {
+                    // Manual upload link with enhanced styling
+                    html += `
+                        <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: var(--bg-tertiary); border-radius: 6px; border-left: 4px solid var(--accent-blue); transition: transform 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='translateX(0)'">
+                            <a href="${r.url}" target="_blank" style="text-decoration: none; color: var(--accent-blue); font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <span style="font-size: 1.2rem;">${icon}</span>
+                                <span>${r.title}</span>
+                                <span style="margin-left: auto; font-size: 0.8rem;">→</span>
+                            </a>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0; padding-left: 28px;">${r.snippet}</p>
+                        </div>
+                    `;
+                } else {
+                    // Actual search result (if SerpAPI works)
+                    html += `
+                        <div style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px; border-left: 3px solid var(--accent-blue);">
+                            ${r.thumbnail ? `<img src="${r.thumbnail}" style="width: 100%; border-radius: 4px; margin-bottom: 0.5rem;">` : ''}
+                            <h5 style="margin: 0 0 4px 0; font-size: 0.85rem;">
+                                <a href="${r.url}" target="_blank" style="color: var(--accent-blue); text-decoration: none;">
+                                    ${icon} ${r.title}
+                                </a>
+                            </h5>
+                            <p style="font-size: 0.7rem; color: var(--text-success); margin: 2px 0;">
+                                <strong>Source:</strong> ${r.source}
+                            </p>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">
+                                ${r.snippet}
+                            </p>
+                        </div>
+                    `;
+                }
+            });
+        } else if (searchMode === 'internet' || searchMode === 'both') {
+            html += '<p class="text-muted">No internet results found.</p>';
+        }
+
+        if (data.error) {
+            html += `<p class="text-error" style="margin-top: 1rem;">Error: ${data.error}</p>`;
+        }
+
+        resultsDiv.innerHTML = html || '<p>No results found.</p>';
+
     } catch (error) {
-        container.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
+        resultsDiv.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
     }
 }
 
