@@ -23,7 +23,8 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Core JavaScript -->
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/app-tools.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
     <script src="{{ url_for('static', filename='js/image-viewer.js') }}"></script>

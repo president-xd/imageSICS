@@ -164,13 +164,19 @@ function closeToolPanel() {
 
 // Tool interface loader
 async function loadToolInterface(toolName, category, container) {
+    console.log(`[1] Loading tool: ${toolName}`);
+    console.log(`[2] Container:`, container);
+
     container.innerHTML = `
         <div class="panel-loading">
             <i data-lucide="loader-2" class="spinner"></i>
             <p>Loading ${toolName}...</p>
         </div>
     `;
+    console.log(`[3] Set loading HTML`);
+
     lucide.createIcons();
+    console.log(`[4] Created icons`);
 
     // Map tools to their handlers
     const toolHandlers = {
@@ -223,10 +229,24 @@ async function loadToolInterface(toolName, category, container) {
         'Image Resampling': showResampling
     };
 
+    console.log(`[5] Tool handlers defined, total: ${Object.keys(toolHandlers).length}`);
+    console.log(`[6] Looking for handler: "${toolName}"`);
+
     const handler = toolHandlers[toolName];
+    console.log(`[7] Handler found:`, !!handler);
+
     if (handler) {
-        await handler(container);
+        try {
+            console.log(`[8] Calling handler for: ${toolName}`);
+            await handler(container);
+            console.log(`[9] Handler completed for: ${toolName}`);
+        } catch (error) {
+            console.error(`[ERROR] Error in handler for ${toolName}:`, error);
+            container.innerHTML = `<p class="text-error">Error loading ${toolName}: ${error.message}</p>`;
+        }
     } else {
+        console.warn(`[WARN] No handler found for: ${toolName}`);
+        console.log(`[DEBUG] Available handlers:`, Object.keys(toolHandlers));
         container.innerHTML = `<p>Tool "${toolName}" not yet implemented.</p>`;
     }
 }
