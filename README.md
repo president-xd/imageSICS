@@ -21,46 +21,40 @@
 
 ---
 
-export PATH=$PWD/node-v20.10.0-linux-x64/bin:$PATH && cd apps/web && npm install --ignore-scripts && npm run dev
-
-
-
-## 📦 Installation (From Zero)
+## 📦 Installation & Setup
 
 ### Prerequisites
-1.  **Python 3.9+**: Ensure `python3` and `pip` are installed.
-2.  **Node.js 18+**: Ensure `node` and `npm` are installed.
-3.  **System Libs**: `libgl1` (for OpenCV) if running on minimal Linux.
+- **Python 3.10+**: Required for the backend.
+- **Node.js 20+**: Required for the frontend (Provided locally in project).
 
-### 1. Clone & Setup
+### 1. Backend Setup
+The backend handles all forensic analysis and file processing.
+
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/imageSICS.git
-cd imageSICS
-
-# Run the automated setup script
-# This creates virtualenvs, installs dependencies, and configures .env
-./scripts/setup_dev.sh
-```
-
-### 2. Manual Setup (Alternative)
-If you prefer manual control:
-
-**Backend:**
-```bash
-# Create venv
+# 1. Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install Core
+# 2. Install dependencies (Core & API)
 pip install -e packages/imagesics-core
-
-# Install API
 pip install -e apps/api
+pip install uvicorn python-multipart
+
+# Note: If venv creation fails due to missing system packages, 
+# you can install globally for your user:
+# pip install --user -e packages/imagesics-core
+# pip install --user -e apps/api
+# pip install --user uvicorn python-multipart
 ```
 
-**Frontend:**
+### 2. Frontend Setup
+The frontend is a Next.js application located in `apps/web`.
+
 ```bash
+# 1. Setup usage of local Node.js binary (recommended)
+export PATH=$PWD/node-v20.10.0-linux-x64/bin:$PATH
+
+# 2. Install dependencies
 cd apps/web
 npm install
 ```
@@ -69,22 +63,29 @@ npm install
 
 ## ▶️ Running the Application
 
-You need two terminal windows.
+You will need two terminal windows running simultaneously.
 
-**Terminal 1: API Server**
+### Terminal 1: API Server
+Starts the backend server on port 8000.
+
 ```bash
-# From root directory
-source .venv/bin/activate
-uvicorn imagesics_api.main:app --app-dir apps/api/src --reload --port 8000
+# From the project root
+source .venv/bin/activate  # If using venv
+uvicorn imagesics_api.main:app --app-dir apps/api/src --reload --port 8000 --host 127.0.0.1
 ```
 
-**Terminal 2: Web Client**
+### Terminal 2: Web Interface
+Starts the frontend development server on port 3000.
+
 ```bash
+# From the project root
+export PATH=$PWD/node-v20.10.0-linux-x64/bin:$PATH
 cd apps/web
 npm run dev
 ```
 
-Visit **http://localhost:3000** to launch the suite.
+Once both are running, open your browser and access the suite at:
+👉 **http://localhost:3000**
 
 ---
 
