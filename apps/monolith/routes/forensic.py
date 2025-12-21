@@ -417,7 +417,8 @@ def pixel_stats():
     """Compute pixel statistics (min, max, mean, variance)."""
     try:
         img = load_image(request.json.get('image_path'))
-        return jsonify(pixel_analysis.compute_pixel_stats(img))
+        stats = pixel_analysis.compute_pixel_stats(img)
+        return jsonify({"stats": stats})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -506,8 +507,8 @@ def jpeg_quality_estimation():
         result = jpeg_quality.compute_jpeg_quality_estimation(img)
         
         # Save plot
-        plot_url = save_bytes_result(result['plot'], "quality_plot")
-        return jsonify({"plot_url": plot_url})
+        plot_url = save_bytes_result(result['plot'], "quality_plot", "jpg")
+        return jsonify({"result_url": plot_url, "quality": "See plot for quality estimation"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -563,10 +564,27 @@ def multiple_compression():
             mae = float(np.mean(diff))
             errors.append(mae)
         
-        return jsonify({
-            "qualities": qualities,
-            "errors": errors
-        })
+        # Create visualization plot
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        from io import BytesIO
+        
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(qualities, errors, marker='o', linewidth=2, markersize=8)
+        ax.set_title('Multiple Compression Detection', fontsize=14, fontweight='bold')
+        ax.set_xlabel('JPEG Quality Level', fontsize=12)
+        ax.set_ylabel('Mean Absolute Error', fontsize=12)
+        ax.grid(True, alpha=0.3)
+        ax.set_facecolor('#f8f8f8')
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='jpg', dpi=100, bbox_inches='tight')
+        plt.close(fig)
+        buf.seek(0)
+        
+        result_url = save_bytes_result(buf.getvalue(), "compression", "jpg")
+        return jsonify({"result_url": result_url})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

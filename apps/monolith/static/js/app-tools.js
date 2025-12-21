@@ -83,9 +83,14 @@ async function showPixelStatistics(container) {
         const data = await response.json();
 
         if (data.stats) {
-            const rows = Object.entries(data.stats).map(([key, value]) =>
-                `<tr><td>${key}</td><td>${typeof value === 'number' ? value.toFixed(2) : value}</td></tr>`
-            ).join('');
+            let rows = '';
+            for (const [channel, values] of Object.entries(data.stats)) {
+                rows += `<tr><td colspan="2" style="background: var(--bg-tertiary); font-weight: 600;">${channel} Channel</td></tr>`;
+                for (const [key, value] of Object.entries(values)) {
+                    const displayValue = typeof value === 'number' ? value.toFixed(2) : value;
+                    rows += `<tr><td>${key}</td><td>${displayValue}</td></tr>`;
+                }
+            }
 
             container.innerHTML = `
                 <h4>Pixel Statistics</h4>
@@ -93,7 +98,10 @@ async function showPixelStatistics(container) {
                     <tr><th>Metric</th><th>Value</th></tr>
                     ${rows}
                 </table>
+                <p class="text-muted">Statistical analysis of pixel values per color channel</p>
             `;
+        } else if (data.error) {
+            container.innerHTML = `<p class="text-error">Error: ${data.error}</p>`;
         }
     } catch (error) {
         container.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
@@ -200,12 +208,20 @@ async function showJPEGQuality(container) {
 
         const data = await response.json();
 
-        if (data.quality) {
+        if (data.result_url) {
+            container.innerHTML = `
+                <h4>JPEG Quality Estimation</h4>
+                <img src="${data.result_url}" class="result-image" alt="Quality Plot">
+                <p class="text-muted">Quality vs Error curve - local minima indicate compression quality</p>
+            `;
+        } else if (data.quality) {
             container.innerHTML = `
                 <h4>JPEG Quality Estimation</h4>
                 <p>Estimated Quality: <strong>${data.quality}</strong></p>
                 <p class="text-muted">Based on quantization table analysis</p>
             `;
+        } else if (data.error) {
+            container.innerHTML = `<p class="text-error">Error: ${data.error}</p>`;
         }
     } catch (error) {
         container.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
@@ -269,9 +285,11 @@ async function showMultipleCompression(container) {
         if (data.result_url) {
             container.innerHTML = `
                 <h4>Multiple Compression Detection</h4>
-                <img src="${data.result_url}" class="result-image" alt="Compression">
-                <p class="text-muted">DCT coefficient analysis</p>
+                <img src="${data.result_url}" class="result-image" alt="Compression Analysis">
+                <p class="text-muted">Error levels across different JPEG quality settings</p>
             `;
+        } else if (data.error) {
+            container.innerHTML = `<p class="text-error">Error: ${data.error}</p>`;
         }
     } catch (error) {
         container.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
