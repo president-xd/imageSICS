@@ -12,7 +12,7 @@ STORAGE_DIR = Path(os.getenv("IMAGESICS_STORAGE_DIR", "./storage")).resolve()
 UPLOADS_DIR = STORAGE_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-@router.post("/")
+@router.post("")
 async def upload_file(file: UploadFile = File(...)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")

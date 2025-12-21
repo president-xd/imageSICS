@@ -45,6 +45,7 @@ export const Sidebar = () => {
     const { setCurrentImage, setLoading } = useWorkspaceStore();
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("File selected:", e.target.files);
         if (!e.target.files?.[0]) return;
         setLoading(true);
         const file = e.target.files[0];
@@ -52,7 +53,7 @@ export const Sidebar = () => {
         formData.append('file', file);
 
         try {
-            const res = await fetch('/api/uploads/', {
+            const res = await fetch('/api/uploads', {
                 method: 'POST',
                 body: formData
             });
@@ -72,6 +73,14 @@ export const Sidebar = () => {
         }
     };
 
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const onButtonClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-bg-panel text-text-primary">
             {/* Header */}
@@ -81,11 +90,21 @@ export const Sidebar = () => {
                     <h1 className="font-bold tracking-wider text-base">imageSICS</h1>
                 </div>
 
-                <label className="flex items-center justify-center w-full py-2.5 px-4 bg-accent hover:bg-accent-hover text-white rounded-md cursor-pointer transition-all shadow-lg hover:shadow-accent/20 text-xs font-semibold uppercase tracking-wide">
+                <input
+                    type='file'
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={handleUpload}
+                    accept="image/*"
+                />
+
+                <button
+                    onClick={onButtonClick}
+                    className="flex items-center justify-center w-full py-2.5 px-4 bg-accent hover:bg-accent-hover text-white rounded-md cursor-pointer transition-all shadow-lg hover:shadow-accent/20 text-xs font-semibold uppercase tracking-wide"
+                >
                     <UploadCloud className="w-4 h-4 mr-2" />
                     Load Evidence
-                    <input type='file' className="hidden" onChange={handleUpload} />
-                </label>
+                </button>
             </div>
 
             {/* Search (Optional Polish) */}
