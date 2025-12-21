@@ -21,6 +21,10 @@
 
 ---
 
+export PATH=$PWD/node-v20.10.0-linux-x64/bin:$PATH && cd apps/web && npm install --ignore-scripts && npm run dev
+
+
+
 ## 📦 Installation (From Zero)
 
 ### Prerequisites

@@ -11,7 +11,7 @@ const TOOLS = [
     },
     {
         name: "Metadata",
-        items: ["Header Structure", "EXIF Dump", "Thumbnail Analysis", "Geolocation"]
+        items: ["Header Structure", "EXIF Full Dump", "Thumbnail Analysis", "Geolocation Data"]
     },
     {
         name: "Inspection",
@@ -27,16 +27,12 @@ const TOOLS = [
     },
     {
         name: "Noise",
-        items: ["Signal Separation", "Min/Max Deviation", "Bit Plane Values", "PRNU Identification"]
+        items: ["Signal Separation", "Min/Max Deviation", "Bit Plane Values", "Wavelet Blocking", "PRNU Identification"]
     },
     {
         name: "JPEG",
-        items: ["Quality Estimation", "Error Level Analysis", "Multiple Compression", "JPEG Ghost Map"]
-    },
-    {
-        name: "Tampering",
-        items: ["Contrast Enhancement", "Copy-Move Forgery", "Image Splicing", "Image Resampling"]
-    },
+        items: ["Quality Estimation"]
+    }
 ];
 
 export const Sidebar = () => {
@@ -69,24 +65,28 @@ export const Sidebar = () => {
     };
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-gray-700">
-                <h1 className="text-xl font-bold tracking-wider text-accent mb-4">imageSICS</h1>
+        <div className="flex flex-col h-full bg-[var(--bg-panel)] border-r border-[var(--border-color)]">
+            <div className="p-3 border-b border-[var(--border-color)] bg-[var(--bg-panel)]">
+                <h1 className="text-base font-bold tracking-wide text-[var(--accent)] mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
+                    imageSICS
+                </h1>
 
-                <label className="flex items-center justify-center w-full px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded cursor-pointer transition-colors">
+                <label className="flex items-center justify-center w-full px-3 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded cursor-pointer transition-all shadow-lg shadow-blue-500/20 text-xs font-semibold">
                     <UploadCloud className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium">Load Image</span>
+                    <span>Load Image</span>
                     <input type='file' className="hidden" onChange={handleUpload} />
                 </label>
 
                 {currentImage && (
-                    <div className="mt-2 text-xs text-gray-400 truncate">
+                    <div className="mt-3 p-2 bg-[var(--bg-input)] rounded border border-[var(--border-color)] text-[11px] text-[var(--text-secondary)] truncate flex items-center gap-2">
+                        <ImageIcon className="w-3 h-3 flex-shrink-0" />
                         {currentImage.filename}
                     </div>
                 )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 overflow-y-auto p-2 custom-scrollbar space-y-1">
                 {TOOLS.map(group => (
                     <ToolGroup key={group.name} name={group.name} items={group.items} />
                 ))}
@@ -99,23 +99,22 @@ const ToolGroup = ({ name, items }: { name: string, items: string[] }) => {
     const [open, setOpen] = useState(false);
 
     return (
-        <div className="mb-1">
+        <div className="mb-1 rounded overflow-hidden">
             <button
                 onClick={() => setOpen(!open)}
-                className="flex items-center w-full p-2 text-gray-300 hover:bg-white/5 rounded text-left"
+                className={`flex items-center w-full px-2 py-1.5 text-left font-medium text-xs transition-colors ${open ? 'text-[var(--text-primary)] bg-[var(--bg-input)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)]'}`}
             >
-                {open ? <ChevronDown className="w-4 h-4 mr-2" /> : <ChevronRight className="w-4 h-4 mr-2" />}
-                <span className="font-semibold text-sm">{name}</span>
+                {open ? <ChevronDown className="w-3.5 h-3.5 mr-2 text-[var(--text-muted)]" /> : <ChevronRight className="w-3.5 h-3.5 mr-2 text-[var(--text-muted)]" />}
+                <span>{name}</span>
             </button>
 
             {open && (
-                <div className="ml-4 pl-2 border-l border-gray-600 space-y-1 mt-1">
+                <div className="ml-2 pl-2 border-l border-[var(--border-highlight)] space-y-0.5 mt-1 mb-2">
                     {items.map(item => (
                         <button
                             key={item}
-                            // On click: Open specific panel in DockManager
                             onClick={() => window.dispatchEvent(new CustomEvent('open-tool', { detail: { name: item } }))}
-                            className="block w-full text-left px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded"
+                            className="block w-full text-left px-2 py-1 text-[11px] text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-input)] rounded transition-colors"
                         >
                             {item}
                         </button>

@@ -27,6 +27,7 @@ const INITIAL_LAYOUT: IJsonModel = {
     global: {
         tabEnableClose: true,
         tabEnableFloat: true,
+        tabSetEnableMaximize: true,
     },
     borders: [],
     layout: {
@@ -34,14 +35,62 @@ const INITIAL_LAYOUT: IJsonModel = {
         weight: 100,
         children: [
             {
-                type: "tabset",
+                type: "row",
                 weight: 50,
-                selected: 0,
                 children: [
                     {
-                        type: "tab",
-                        name: "Original Image",
-                        component: "Original Image",
+                        type: "tabset",
+                        weight: 50,
+                        selected: 0,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "Original Image",
+                                component: "Original Image",
+                            }
+                        ]
+                    },
+                    {
+                        type: "tabset",
+                        weight: 50,
+                        selected: 0,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "File Digest",
+                                component: "File Digest",
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                type: "row",
+                weight: 50,
+                children: [
+                    {
+                        type: "tabset",
+                        weight: 50,
+                        selected: 0,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "Hex Editor",
+                                component: "Hex Editor",
+                            }
+                        ]
+                    },
+                    {
+                        type: "tabset",
+                        weight: 50,
+                        selected: 0,
+                        children: [
+                            {
+                                type: "tab",
+                                name: "Similar Search",
+                                component: "Similar Search",
+                            }
+                        ]
                     }
                 ]
             }
@@ -138,6 +187,9 @@ export const DockManager = () => {
         // Colors -----------------------------------------------------
         if (component === "RGB/HSV Plots") return <GenericResultPanel {...props} config={{
             name: "3D Plot", endpoint: "/transform/plot", controls: []
+        }} />;
+        if (component === "Wavelet Blocking") return <GenericResultPanel {...props} config={{
+            name: "Wavelet Blocking", endpoint: "/analysis/blocking", controls: []
         }} />;
         if (component === "Space Conversion") return <GenericResultPanel {...props} config={{
             name: "Color Space", endpoint: "/transform/space", controls: [

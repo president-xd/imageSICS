@@ -54,11 +54,11 @@ export const GenericResultPanel = ({ image, config }: { image: any, config: Filt
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#323232]">
-            <div className="flex flex-wrap items-center p-2 bg-[#252525] border-b border-gray-600 gap-4 text-xs">
+        <div className="flex flex-col h-full bg-white border border-gray-300">
+            <div className="flex flex-wrap items-center p-2 bg-gray-100 border-b border-gray-300 gap-4 text-xs">
                 {config.controls.map(c => (
                     <div key={c.id} className="flex flex-col min-w-[60px]">
-                        <label className="text-gray-400 mb-1">{c.label}</label>
+                        <label className="text-gray-600 mb-1">{c.label}</label>
                         {c.type === 'slider' && (
                             <div className="flex items-center gap-2">
                                 <input
@@ -73,7 +73,7 @@ export const GenericResultPanel = ({ image, config }: { image: any, config: Filt
                         )}
                         {c.type === 'select' && (
                             <select
-                                className="bg-[#444] rounded px-1 py-1"
+                                className="bg-white border border-gray-300 rounded px-1 py-1"
                                 value={params[c.id] || c.default}
                                 onChange={e => handleChange(c.id, e.target.value)}
                             >
@@ -87,18 +87,18 @@ export const GenericResultPanel = ({ image, config }: { image: any, config: Filt
 
                 <button
                     onClick={run}
-                    className="ml-auto px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded font-bold flex items-center gap-2"
+                    className="ml-auto px-4 py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded font-bold flex items-center gap-2"
                 >
                     {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Process"}
                 </button>
             </div>
 
-            <div className="flex-1 flex items-center justify-center overflow-auto bg-[#222] p-4 relative">
+            <div className="flex-1 flex items-center justify-center overflow-auto bg-gray-50 p-4 relative">
                 {resultUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={resultUrl} alt="Result" className="max-w-full max-h-full object-contain shadow-lg" />
                 ) : (
-                    <div className="text-gray-600 flex flex-col items-center">
+                    <div className="text-gray-400 flex flex-col items-center">
                         <Sliders className="w-12 h-12 mb-2 opacity-20" />
                         <span>Ready to process</span>
                     </div>

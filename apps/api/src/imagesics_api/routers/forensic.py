@@ -203,9 +203,15 @@ def run_stereogram(req: AnalysisRequest):
         f.write(res_bytes)
     return {"result_url": f"/storage/results/{filename}"}
 
+
 @router.get("/metadata/gps")
 def get_gps(path: str):
     return metadata.get_gps_coords(path)
+
+@router.get("/metadata/exif")
+def get_exif(path: str):
+    return metadata.get_exif_metadata(path)
+
 
 @router.post("/transform/wavelet")
 def run_wavelet(req: AnalysisRequest):
