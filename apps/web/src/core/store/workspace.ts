@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface ImageMetadata {
+interface ImageState {
     id: string;
     filename: string;
     url: string;
@@ -8,15 +8,21 @@ interface ImageMetadata {
 }
 
 interface WorkspaceState {
-    currentImage: ImageMetadata | null;
-    setCurrentImage: (img: ImageMetadata) => void;
+    currentImage: ImageState | null;
+    activeTool: string | null;
     isLoading: boolean;
+
+    setCurrentImage: (image: ImageState | null) => void;
+    setActiveTool: (tool: string | null) => void;
     setLoading: (loading: boolean) => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({
     currentImage: null,
-    setCurrentImage: (img) => set({ currentImage: img }),
+    activeTool: null,
     isLoading: false,
+
+    setCurrentImage: (image) => set({ currentImage: image }),
+    setActiveTool: (tool) => set({ activeTool: tool }),
     setLoading: (loading) => set({ isLoading: loading }),
 }));

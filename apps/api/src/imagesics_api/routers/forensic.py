@@ -6,8 +6,13 @@ import cv2 as cv
 import numpy as np
 import uuid
 import os
+from fastapi.responses import Response
 
-from imagesics_core.forensic import ela, cloning, noise, digest, histogram, jpeg
+from imagesics_core.forensic import (
+    ela, cloning, noise, digest, histogram, jpeg, ghost_maps, resampling, 
+    metadata, pixel_analysis, filters, transforms, stereogram, wavelets, 
+    plots, jpeg_quality, external_tools, metrics
+)
 
 router = APIRouter()
 
@@ -154,11 +159,6 @@ def run_histogram(req: AnalysisRequest):
     hists = histogram.compute_all_histograms(img)
     return hists
 
-from imagesics_core.forensic import ela, cloning, noise, digest, histogram, jpeg, ghost_maps, resampling, metadata, pixel_analysis, filters, transforms, stereogram, wavelets, plots, jpeg_quality, external_tools, metrics
-from fastapi.responses import Response
-
-# ... (Previous imports match file)
-
 @router.post("/jpeg/ghost")
 def run_jpeg_ghost(req: AnalysisRequest):
     img = load_image(req.image_path)
@@ -287,6 +287,43 @@ def get_header(path: str):
     except Exception as e:
         return {"error": str(e), "hex": ""}
 
+@router.get("/hex")
+def get_hex_dump(path: str, lines: int = 16):
+    """
+    Returns a formatted hex dump of the first N * 16 bytes.
+    """
+    try:
+        img_path = Path(path)
+        if not img_path.is_absolute():
+            img_path = STORAGE_DIR / path
+            
+        if not img_path.exists():
+            return {"error": "File not found"}
+            
+        with open(img_path, "rb") as f:
+            # Read specific amount: lines * 16 bytes
+            data = f.read(lines * 16)
+            
+        # Format: Offset  Hex  Ascii
+        # Similar to `hexdump -C`
+        output = []
+        for i in range(0, len(data), 16):
+            chunk = data[i:i+16]
+            # Offset
+            offset = f"{i:08x}"
+            # Hex values
+            hex_vals = " ".join(f"{b:02x}" for b in chunk)
+            # Padding for last line if < 16 bytes
+            padding = "   " * (16 - len(chunk))
+            # Ascii
+            ascii_vals = "".join(chr(b) if 32 <= b <= 126 else "." for b in chunk)
+            
+            output.append(f"{offset}  {hex_vals}{padding}  |{ascii_vals}|")
+            
+        return {"content": "\n".join(output)}
+    except Exception as e:
+        return {"error": str(e), "content": ""}
+
 @router.get("/metadata/thumbnail")
 def get_thumbnail(path: str):
     thumb_bytes = metadata.extract_thumbnail(path)
@@ -318,6 +355,91 @@ def run_space_conversion(req: AnalysisRequest):
         f.write(enc.tobytes())
     return {"result_url": f"/storage/results/{filename}"}
 
-@router.post("/forensic/digest")
-def run_digest(req: AnalysisRequest):
-    return digest.compute_digest(req.image_path)
+def compute_phash(img: np.ndarray) -> str:
+    """Compute perceptual hash using DCT."""
+    # 1. Resize to 32x32
+    resized = cv.resize(img, (32, 32), interpolation=cv.INTER_AREA)
+    # 2. Convert to gray
+    gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
+    # 3. Compute DCT
+    dct = cv.dct(np.float32(gray))
+    # 4. Keep top-left 8x8 (excluding DC term)
+    dct_low = dct[:8, :8]
+    # 5. Compute median
+    med = np.median(dct_low)
+    # 6. Generate hash (1 if > median, 0 otherwise)
+    hash_bits = (dct_low > med).flatten()
+    # Pack into hex string for easier storage/comparison if needed, 
+    # but here we return bit array or int for distance
+    return hash_bits
+
+def hamming_dist(h1, h2) -> int:
+    return np.count_nonzero(h1 != h2)
+
+@router.post("/reverse")
+def run_reverse_search(req: AnalysisRequest):
+    """
+    Perform local reverse image search using custom pHash.
+    Scans STORAGE_DIR/uploads for similar images.
+    """
+    try:
+        img = load_image(req.image_path)
+    except Exception:
+        return {"error": "Query image not found", "results": []}
+
+    try:
+        query_hash = compute_phash(img)
+    except Exception as e:
+        return {"error": f"Hashing failed: {str(e)}", "results": []}
+    
+    # Path to uploads directory
+    uploads_dir = STORAGE_DIR / "uploads"
+    if not uploads_dir.exists():
+        return {"results": []}
+
+    results = []
+    
+    # Iterate over all images in uploads folder
+    for entry in uploads_dir.glob("*"):
+        if entry.is_file() and entry.suffix.lower() in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']:
+            try:
+                # Skip the query image itself
+                query_path_obj = Path(req.image_path)
+                if not query_path_obj.is_absolute():
+                     query_path_obj = STORAGE_DIR / req.image_path
+                
+                # Check absolute paths to avoid self-match
+                if entry.resolve() == query_path_obj.resolve():
+                    continue
+
+                candidate_img = cv.imread(str(entry))
+                if candidate_img is None: 
+                    continue
+                
+                candidate_hash = compute_phash(candidate_img)
+                dist = hamming_dist(query_hash, candidate_hash)
+                
+                # Max distance is 8x8 = 64
+                # Similarity: 1.0 - (dist / 32.0) (allow some variance)
+                # Matches usually have dist <= 10
+                similarity = max(0.0, 1.0 - (dist / 20.0)) 
+                
+                if similarity > 0.6: # Stricter threshold for local
+                    results.append({
+                        "id": entry.name,
+                        "thumbnailUrl": f"/storage/uploads/{entry.name}", 
+                        "pageUrl": f"/storage/uploads/{entry.name}", 
+                        "domain": "Local Storage",
+                        "title": entry.name,
+                        "fileSize": f"{entry.stat().st_size / 1024:.1f} KB",
+                        "dimensions": f"{candidate_img.shape[1]}x{candidate_img.shape[0]}", 
+                        "date": "Local File",
+                        "similarity": similarity
+                    })
+            except Exception as e:
+                # print(f"Error processing {entry}: {e}")
+                continue
+
+    # Sort by similarity desc
+    results.sort(key=lambda x: x["similarity"], reverse=True)
+    return {"results": results}

@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # Mount storage for static access
-STORAGE_DIR = os.getenv("IMAGESICS_STORAGE_DIR", "../../../storage") # Relative to CWD when running
+STORAGE_DIR = os.getenv("IMAGESICS_STORAGE_DIR", "./storage") # Relative to CWD when running
 app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
 
 app.include_router(uploads.router, prefix="/api/uploads", tags=["uploads"])
