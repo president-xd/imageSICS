@@ -641,8 +641,29 @@ def resampling_detection():
     """Image resampling detection."""
     try:
         img = load_image(request.json.get('image_path'))
-        result = resampling.detect_resampling(img)
         
-        return jsonify({"result_url": save_result(result, "resampling")})
+        # Resampling detection is computationally intensive
+        # Crop to smaller size for web performance
+        h, w = img.shape[:2]
+        if h > 512 or w > 512:
+            # Crop center 512x512
+            cy, cx = h // 2, w // 2
+            img = img[max(0, cy-256):cy+256, max(0, cx-256):cx+256]
+        
+        # Use simplified parameters for faster processing
+        from imagesics_core.forensic.resampling import ResamplingRequest, compute_resampling_analysis
+        
+        params = ResamplingRequest(
+            compute_fourier=True,
+            hanning=True,
+            upsample=False,  # Disable upsampling for speed
+            highpass_1=True,
+            gamma=4.0
+        )
+        
+        result_bytes = compute_resampling_analysis(img, params)
+        result_url = save_bytes_result(result_bytes, "resampling", "jpg")
+        
+        return jsonify({"result_url": result_url})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -75,8 +75,8 @@ def compute_probability_map_3x3(process_part):
     w = np.zeros(F.shape[0])
     
     # This iterative EM-like algorithm is heavy.
-    # Max iterations 100.
-    for c in range(50): # Limit to 50 for web safety
+    # Reduced to 20 iterations for web performance.
+    for c in range(20):  # Reduced from 50 for faster processing
         # Compute r = |f - F*a|
         r = np.abs(f - F @ a)
         
@@ -146,10 +146,10 @@ def compute_resampling_analysis(image: np.ndarray, params: ResamplingRequest) ->
     
     start_y, start_x = 0, 0
     h, w = gray.shape
-    if h > 800 or w > 800:
-        # Crop to center
+    if h > 512 or w > 512:
+        # Crop to center 512x512 for faster processing
         cy, cx = h // 2, w // 2
-        gray = gray[cy-256:cy+256, cx-256:cx+256]
+        gray = gray[max(0, cy-256):min(h, cy+256), max(0, cx-256):min(w, cx+256)]
     
     # Probability MAP
     prob_map = compute_probability_map_3x3(gray)
