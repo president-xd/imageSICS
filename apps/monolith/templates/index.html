@@ -1,112 +1,116 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="main-layout">
-    <!-- Left Sidebar - Tool Navigation -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <div class="logo-pulse"></div>
-                <h1>imageSICS</h1>
-            </div>
+<div class="container">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="toolbar-btn">File</button>
+        <button class="toolbar-btn">View</button>
+        <button class="toolbar-btn">Window</button>
+        <button class="toolbar-btn">Help</button>
+    </div>
 
-            <!-- Upload Button -->
-            <input type="file" id="fileInput" class="hidden" accept="image/*">
-            <button id="uploadBtn" class="btn-primary">
-                <i data-lucide="upload-cloud"></i>
-                <span>Load Evidence</span>
-            </button>
+    <!-- Left Sidebar: Tools -->
+    <div class="sidebar">
+        <div class="sidebar-header">TOOLS</div>
+
+        <div class="upload-section">
+            <button id="uploadBtn">Load Image</button>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- Tool Categories -->
-        <nav class="tool-nav">
-            {% for category in tools %}
-            <div class="tool-category">
-                <button class="category-header" data-category="{{ category.name }}">
-                    <i data-lucide="chevron-down" class="chevron"></i>
-                    <span>{{ category.name }}</span>
-                </button>
-                <div class="tool-list" id="category-{{ category.name }}">
-                    {% for tool in category.tool_list %}
-                    <button class="tool-item" data-tool="{{ tool }}" data-category="{{ category.name }}">
-                        {{ tool }}
-                    </button>
-                    {% endfor %}
+        {% for category in tools %}
+        <div class="tool-category">
+            <div class="category-header" data-category="{{ category.name }}">
+                <span>{{ category.name }}</span>
+                <span>▼</span>
+            </div>
+            <div class="tool-list" id="category-{{ category.name }}">
+                {% for tool in category.tool_list %}
+                <div class="tool-item" data-tool="{{ tool }}" data-category="{{ category.name }}">
+                    {{ tool }}
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </nav>
-
-        <!-- Footer -->
-        <div class="sidebar-footer">
-            <span>v3.0.0 • Flask Edition</span>
         </div>
-    </aside>
+        {% endfor %}
+    </div>
 
-    <!-- Main Content Area -->
-    <main class="main-content">
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state">
-            <i data-lucide="image" class="empty-icon"></i>
-            <h2>No Image Loaded</h2>
-            <p>Upload an image to begin forensic analysis</p>
-        </div>
-
-        <!-- Image Viewer -->
-        <div id="imageViewer" class="image-viewer hidden">
-            <div class="viewer-toolbar">
+    <!-- Main Content: 2x2 Grid Layout -->
+    <div class="main-content">
+        <!-- Original Image Panel (Left side, full height) -->
+        <div class="panel" id="originalImagePanel">
+            <div class="panel-header">
+                <div class="panel-title">Original Image</div>
                 <div class="image-info">
-                    <span id="imageName">-</span>
-                    <span id="imageDimensions" class="text-muted">-</span>
-                </div>
-                <div class="viewer-controls">
-                    <button id="zoomIn" class="icon-btn" title="Zoom In">
-                        <i data-lucide="zoom-in"></i>
-                    </button>
-                    <button id="zoomOut" class="icon-btn" title="Zoom Out">
-                        <i data-lucide="zoom-out"></i>
-                    </button>
-                    <button id="resetZoom" class="icon-btn" title="Reset">
-                        <i data-lucide="maximize"></i>
-                    </button>
+                    <span id="imageName">No image loaded</span> |
+                    <span id="imageDimensions">--</span>
                 </div>
             </div>
+            <div class="panel-content">
+                <div id="emptyState" class="empty-state">
+                    <i data-lucide="image-off"></i>
+                    <p>No Image Loaded</p>
+                    <p class="text-muted">Upload an image to begin forensic analysis</p>
+                </div>
 
-            <div class="viewer-canvas" id="viewerCanvas">
-                <img id="mainImage" src="" alt="Evidence Image">
+                <div id="imageViewer" class="hidden">
+                    <div id="viewerCanvas">
+                        <img id="mainImage" alt="Evidence Image">
+                    </div>
+                    <div class="viewer-controls">
+                        <button id="zoomIn" title="Zoom In">+</button>
+                        <button id="zoomOut" title="Zoom Out">−</button>
+                        <button id="resetZoom" title="Reset">1:1</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
 
-    <!-- Right Panel - Tool Interface -->
-    <aside id="toolPanel" class="tool-panel">
-        <div class="panel-header">
-            <h3 id="toolTitle">Tool</h3>
-            <button id="closePanel" class="icon-btn">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-
-        <div class="panel-content" id="toolContent">
-            <div class="panel-loading">
-                <i data-lucide="loader-2" class="spinner"></i>
-                <p>Loading tool...</p>
+        <!-- Hex Editor Panel (Top-right) -->
+        <div class="panel" id="hexEditorPanel">
+            <div class="panel-header">
+                <div class="panel-title">Hex Editor</div>
+            </div>
+            <div class="panel-content">
+                <pre id="hexContent" style="font-family: monospace; font-size: 11px; line-height: 1.3; margin: 0;">
+<span class="text-muted">No file loaded</span></pre>
             </div>
         </div>
-    </aside>
+
+        <!-- File Digest Panel (Bottom-right) -->
+        <div class="panel" id="fileDigestPanel">
+            <div class="panel-header">
+                <div class="panel-title">File Information</div>
+            </div>
+            <div class="panel-content">
+                <div id="digestContent">
+                    <p class="text-muted">Upload an image to view file information</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Toast Notifications -->
-<div id="toastContainer" class="toast-container"></div>
-{% endblock %}
+<!-- Tool Panel (Overlay - Hidden by default) -->
+<div class="tool-panel" id="toolPanel">
+    <div class="panel-header">
+        <div class="panel-title" id="toolTitle">Analysis Results</div>
+        <button id="closePanel">×</button>
+    </div>
+    <div class="panel-content" id="toolContent">
+        <p class="text-muted">Select a tool from the left sidebar to begin analysis.</p>
+    </div>
+</div>
 
-{% block extra_scripts %}
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<!-- Initialize global state -->
 <script>
-    // Global state
     window.appState = {
-        currentImage: null,
         currentImagePath: null,
-        currentTool: null,
+        currentImage: null,
         zoom: 1.0
     };
 </script>
