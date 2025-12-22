@@ -15,6 +15,7 @@
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/hex-editor.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -25,6 +26,8 @@
     </div>
 
     <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loading.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hex-editor.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app-tools.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

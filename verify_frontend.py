@@ -76,9 +76,9 @@ def verify_frontend():
             
         print(f"    Found {total_tools} tools listed in Sidebar.")
         if total_tools >= 32:
-            print(f"    ✅ Tool count ({total_tools}) matches Sherloq specification (32+).")
+            print(f"   Tool count ({total_tools}) matches Sherloq specification (32+).")
         else:
-            print(f"    ⚠️ Warning: Only {total_tools} tools found (Expected 32).")
+            print(f"    Warning: Only {total_tools} tools found (Expected 32).")
 
     except Exception as e:
         print(f"    Error reading Sidebar: {e}")

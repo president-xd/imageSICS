@@ -1,39 +1,69 @@
 /* ============================================================================
-   FORENSIC DESKTOP APPLICATION STYLE
-   Professional, technical, multi-panel interface
+   FORENSIC DESKTOP APPLICATION STYLE - ENHANCED LIGHT THEME
+   Professional, modern interface with vibrant accents and premium aesthetics
    ============================================================================ */
 
 /* === ROOT VARIABLES === */
 :root {
-    /* Desktop Application Colors - Neutral & Muted */
-    --bg-primary: #f5f5f5;
-    /* Light gray background */
+    /* Enhanced Light Theme - Premium Colors */
+    --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
-    /* White panels */
-    --bg-tertiary: #e8e8e8;
-    /* Slightly darker gray */
-    --border-color: #c0c0c0;
-    /* Medium gray borders */
-    --border-dark: #808080;
-    /* Darker borders */
-    --text-primary: #000000;
-    /* Black text */
-    --text-secondary: #404040;
-    /* Dark gray text */
-    --text-muted: #606060;
-    /* Medium gray text */
-    --accent-blue: #0066cc;
-    /* Subtle blue for selection */
-    --accent-hover: #e0e0e0;
-    /* Hover state */
+    --bg-tertiary: #f1f5f9;
+    --bg-elevated: #e2e8f0;
+    --bg-hover: #dbeafe;
 
-    /* Typography - Technical */
-    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --font-mono: 'Consolas', 'Courier New', monospace;
-    --font-size-small: 11px;
-    --font-size-normal: 12px;
-    --font-size-medium: 13px;
-    --font-size-large: 14px;
+    /* Vibrant Accent Colors - More Saturated */
+    --accent-primary: #3b82f6;
+    --accent-secondary: #8b5cf6;
+    --accent-tertiary: #ec4899;
+    --accent-success: #10b981;
+    --accent-warning: #f59e0b;
+    --accent-error: #ef4444;
+    --accent-info: #06b6d4;
+
+    /* Beautiful Gradients */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --gradient-info: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    --gradient-bg: linear-gradient(180deg, #f8fafc 0%, #e0e7ff 100%);
+    --gradient-panel: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+
+    /* Border Colors - More Visible */
+    --border-color: #94a3b8;
+    --border-dark: #64748b;
+    --border-light: #cbd5e1;
+    --border-accent: #3b82f6;
+
+    /* Text Colors - Higher Contrast */
+    --text-primary: #0f172a;
+    --text-secondary: #1e293b;
+    --text-muted: #475569;
+    --text-disabled: #94a3b8;
+    --text-white: #ffffff;
+
+    /* Hover States */
+    --hover-bg: rgba(59, 130, 246, 0.12);
+    --hover-border: rgba(59, 130, 246, 0.4);
+
+    /* Shadow System */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+
+    /* Typography - Modern */
+    --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-size-xs: 10px;
+    --font-size-sm: 11px;
+    --font-size-base: 12px;
+    --font-size-lg: 13px;
+    --font-size-xl: 14px;
+    --font-size-2xl: 16px;
 }
 
 /* === GLOBAL RESET === */
@@ -45,11 +75,14 @@
 
 body {
     font-family: var(--font-main);
-    font-size: var(--font-size-normal);
+    font-size: var(--font-size-base);
     color: var(--text-primary);
-    background: var(--bg-primary);
-    line-height: 1.4;
+    background: var(--gradient-bg);
+    background-attachment: fixed;
+    line-height: 1.6;
     overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* === MAIN CONTAINER === */
@@ -63,13 +96,14 @@ body {
 
 /* Tool panel - integrated into grid layout */
 .tool-panel {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: var(--gradient-panel);
+    border-left: 1px solid var(--border-color);
     display: none;
     flex-direction: column;
     overflow: hidden;
     grid-row: 1 / 3;
     grid-column: 2;
+    box-shadow: var(--shadow-xl);
 }
 
 .tool-panel.open {
@@ -79,26 +113,169 @@ body {
 /* === TOOLBAR (TOP) === */
 .toolbar {
     grid-column: 1 / -1;
-    background: var(--bg-tertiary);
-    border-bottom: 1px solid var(--border-dark);
-    padding: 4px 8px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    height: 32px;
+    gap: 10px;
+    height: 36px;
+    box-shadow: var(--shadow-sm);
 }
 
 .toolbar-btn {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    padding: 3px 12px;
-    font-size: var(--font-size-small);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    padding: 6px 16px;
+    font-size: var(--font-size-sm);
     cursor: pointer;
     color: var(--text-primary);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .toolbar-btn:hover {
-    background: var(--accent-hover);
+    background: var(--hover-bg);
+    border-color: var(--border-accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* === SIDEBAR (LEFT) === */
+.sidebar {
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    padding: 12px 0;
+    box-shadow: var(--shadow-md);
+}
+
+.sidebar-header {
+    padding: 8px 16px;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    background: var(--bg-tertiary);
+    margin-bottom: 8px;
+}
+
+/* Upload Section */
+.upload-section {
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+
+#uploadBtn {
+    width: 100%;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    display: block;
+}
+
+#uploadBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    color: #ffffff !important;
+}
+
+#uploadBtn:active {
+    transform: translateY(0);
+}
+
+/* Tool Categories */
+.tool-category {
+    margin-bottom: 8px;
+}
+
+.category-header {
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 0 6px;
+}
+
+.category-header:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.category-header span:last-child {
+    transition: transform 0.3s ease;
+    color: var(--accent-primary);
+    font-weight: 700;
+}
+
+.category-header.expanded span:last-child {
+    transform: rotate(180deg);
+}
+
+.tool-list {
+    padding: 4px 0;
+}
+
+.tool-item {
+    padding: 7px 16px;
+    margin: 1px 10px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.tool-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--gradient-blue);
+    border-radius: 0 2px 2px 0;
+    transition: height 0.2s ease;
+}
+
+.tool-item:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    transform: translateX(4px);
+}
+
+.tool-item:hover::before {
+    height: 60%;
+}
+
+.tool-item.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.tool-item.active::before {
+    height: 100%;
+    background: #ffffff !important;
 }
 
 .toolbar-btn:active {
@@ -125,20 +302,6 @@ body {
 .upload-section {
     padding: 8px;
     border-bottom: 1px solid var(--border-color);
-}
-
-#uploadBtn {
-    width: 100%;
-    padding: 6px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    font-size: var(--font-size-normal);
-    text-align: center;
-}
-
-#uploadBtn:hover {
-    background: var(--accent-hover);
 }
 
 /* Tool Categories */
@@ -512,4 +675,239 @@ pre {
 canvas {
     max-width: 100%;
     height: auto !important;
+}
+
+/* ============================================================================
+   UI ENHANCEMENTS - ANIMATIONS & TRANSITIONS
+   ============================================================================ */
+
+/* Global smooth transitions */
+* {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Sidebar enhancements */
+.sidebar {
+    transition: width 0.3s ease;
+}
+
+.tool-category {
+    margin-bottom: 8px;
+}
+
+.category-header {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.category-header:hover {
+    background: rgba(102, 126, 234, 0.08);
+}
+
+.tool-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.tool-list.expanded {
+    max-height: 1000px;
+}
+
+.tool-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.tool-item:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), transparent);
+    transform: translateX(4px);
+}
+
+.tool-item.active {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.15), transparent);
+    border-left: 3px solid #667eea;
+    font-weight: 600;
+}
+
+/* Tool panel animations */
+.tool-panel {
+    animation: slideInRight 0.3s ease-out;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+}
+
+.tool-panel-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 20px;
+}
+
+.tool-panel-content {
+    animation: fadeIn 0.4s 0.2s both;
+}
+
+/* Button enhancements */
+button,
+.btn,
+.toolbar-btn {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+button:hover,
+.btn:hover,
+.toolbar-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active,
+.btn:active,
+.toolbar-btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+/* Image viewer enhancements */
+#mainImage {
+    transition: transform 0.3s ease, opacity 0.4s ease;
+}
+
+#mainImage.loading {
+    opacity: 0.5;
+}
+
+#mainImage.loaded {
+    opacity: 1;
+    animation: fadeIn 0.4s;
+}
+
+/* Zoom controls */
+.zoom-controls button {
+    transition: all 0.2s ease;
+}
+
+.zoom-controls button:hover {
+    background: rgba(102, 126, 234, 0.15);
+    transform: scale(1.1);
+}
+
+/* Panel animations */
+.panel {
+    transition: box-shadow 0.2s ease;
+}
+
+.panel:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* Loading states */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s;
+}
+
+/* Smooth focus states */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Glassmorphism for panels (subtle) */
+.panel-glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Hover glow effect for active elements */
+.glow-on-hover:hover {
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Smooth color transitions for text */
+a,
+.link {
+    transition: color 0.2s ease;
+}
+
+a:hover,
+.link:hover {
+    color: #667eea;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Fade in for dynamic content */
+.fade-in-content {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Slide in for notifications */
+.slide-in-notification {
+    animation: slideInDown 0.3s ease-out;
+}
+
+/* Pulse for loading indicators */
+.pulse-indicator {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* GPU acceleration for smooth animations */
+.gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }

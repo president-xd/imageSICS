@@ -11,21 +11,179 @@
     overflow: hidden;
 }
 
-.hex-editor-toolbar {
+/* Hex Editor Footer */
+.hex-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
+    padding: 8px 12px;
     background: var(--bg-tertiary);
-    border-bottom: 1px solid var(--border-color);
-    gap: 16px;
+    border-top: 1px solid var(--border-color);
+    font-size: 11px;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.hex-toolbar-left,
-.hex-toolbar-right {
+.hex-footer-info {
     display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hex-footer-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.hex-footer button {
+    padding: 4px 10px;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.hex-footer button:hover {
+    background: var(--hover-bg);
+    border-color: var(--accent-primary);
+}
+
+.hex-editor-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hex-toolbar-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+}
+
+.hex-search-input,
+.hex-goto-input {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    flex: 0 0 auto;
+}
+
+.hex-search-input {
+    width: 140px;
+    max-width: 100%;
+}
+
+.hex-goto-input {
+    width: 90px;
+    max-width: 100%;
+}
+
+.hex-search-input:focus,
+.hex-goto-input:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 0;
+    border-color: var(--accent-primary);
+}
+
+.hex-btn {
+    padding: 4px 8px;
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+    border: 1px solid #94a3b8 !important;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex: 0 0 auto;
+    display: inline-block !important;
+}
+
+.hex-btn:hover:not(:disabled) {
+    background: #cbd5e1 !important;
+    border-color: #3b82f6 !important;
+    transform: translateY(-1px);
+}
+
+.hex-btn:active {
+    transform: translateY(0);
+}
+
+.hex-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hex-btn-small {
+    padding: 3px 6px;
+    font-size: 9px;
+}
+
+.hex-btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600;
+}
+
+.hex-btn-primary:hover:not(:disabled) {
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+}
+
+.hex-btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600;
+}
+
+.hex-btn-success:hover:not(:disabled) {
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.hex-btn-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600;
+}
+
+.hex-btn-warning:hover:not(:disabled) {
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hex-toolbar-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hex-btn,
+    .hex-search-input,
+    .hex-goto-input {
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 .hex-file-info,
@@ -35,57 +193,80 @@
 }
 
 .hex-file-info strong {
-    color: var(--text-primary);
+    flex-wrap: wrap;
+    align-items: center;
 }
 
-.hex-search-input {
-    padding: 6px 12px;
-    background: var(--bg-primary);
+.hex-toolbar input {
+    padding: 5px 10px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    background: var(--bg-secondary);
     color: var(--text-primary);
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    width: 200px;
+    min-width: 120px;
 }
 
-.hex-search-input:focus {
-    outline: none;
-    border-color: var(--accent-blue);
+.hex-toolbar input:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 0;
+    border-color: var(--accent-primary);
 }
 
-.hex-btn {
-    padding: 6px 12px;
-    background: var(--accent-blue);
-    color: white;
-    border: none;
+.hex-toolbar button {
+    padding: 5px 12px;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
-    transition: background 0.2s;
-}
-
-.hex-btn:hover:not(:disabled) {
-    background: #3182ce;
-}
-
-.hex-btn:disabled {
-    background: #555;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.hex-btn-small {
-    padding: 6px 8px;
     font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
 }
 
-.hex-btn-success {
-    background: #10b981;
+.hex-toolbar button:hover {
+    background: var(--hover-bg);
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
 }
 
-.hex-btn-success:hover:not(:disabled) {
-    background: #059669;
+.hex-toolbar button:active {
+    transform: translateY(0);
+}
+
+.hex-toolbar button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hex-toolbar button.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.hex-toolbar button.btn-primary:hover {
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.hex-toolbar button.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.hex-toolbar button.btn-success:hover {
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.hex-toolbar button.btn-small {
+    padding: 4px 10px;
+    font-size: 10px;
 }
 
 .hex-btn-warning {

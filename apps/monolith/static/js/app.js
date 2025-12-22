@@ -83,15 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Tool category collapse/expand
+    // Category collapse/expand
     document.querySelectorAll('.category-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const category = header.dataset.category;
+        header.addEventListener('click', function () {
+            const category = this.dataset.category;
             const toolList = document.getElementById(`category-${category}`);
 
-            header.classList.toggle('collapsed');
-            toolList.classList.toggle('collapsed');
+            // Toggle expanded class on header
+            this.classList.toggle('expanded');
+
+            // Toggle expanded class on tool list
+            if (toolList) {
+                toolList.classList.toggle('expanded');
+            }
         });
+
+        // Start with all categories expanded
+        header.classList.add('expanded');
+        const category = header.dataset.category;
+        const toolList = document.getElementById(`category-${category}`);
+        if (toolList) {
+            toolList.classList.add('expanded');
+        }
     });
 
     // Tool selection
@@ -351,7 +364,7 @@ async function performSimilarSearch() {
 
         // Local results
         if (data.local_results && data.local_results.length > 0) {
-            html += '<h4 style="margin-top: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 4px;">📁 Local Database Matches</h4>';
+            html += '<h4 style="margin-top: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 4px;">Local Database Matches</h4>';
             html += `<p class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.5rem;">Found ${data.local_results.length} similar image(s)</p>`;
 
             data.local_results.forEach(r => {
@@ -384,7 +397,7 @@ async function performSimilarSearch() {
                     
                     <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 4px; border-left: 3px solid #ff8800;">
                         <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
-                            <strong style="color: var(--text-primary);">⚠️ Manual Upload Required:</strong><br>
+                            <strong style="color: var(--text-primary);"> Manual Upload Required:</strong><br>
                             1. Click "Download Image" button above to save the image<br>
                             2. Click a search engine link below<br>
                             3. Upload the downloaded image on that site<br>

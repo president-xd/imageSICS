@@ -33,18 +33,17 @@ class HexEditor {
         this.container.innerHTML = `
             <div class="hex-editor-wrapper">
                 <div class="hex-editor-toolbar">
-                    <div class="hex-toolbar-left">
-                        <span class="hex-file-info">File: <strong>${this.filePath.split('/').pop()}</strong></span>
-                        <span class="hex-size-info" id="hexSizeInfo">Size: Loading...</span>
-                    </div>
-                    <div class="hex-toolbar-right">
-                        <input type="text" id="hexSearchInput" placeholder="Search hex (e.g., 89504E47)" class="hex-search-input">
-                        <button onclick="hexEditor.search()" class="hex-btn hex-btn-small">Find</button>
+                    <div class="hex-toolbar-row">
+                        <input type="text" id="hexSearchInput" placeholder="Search hex" class="hex-search-input">
+                        <button onclick="hexEditor.search()" class="hex-btn hex-btn-primary hex-btn-small">Find</button>
                         <button onclick="hexEditor.findNext()" class="hex-btn hex-btn-small" id="hexFindNext" disabled>Next</button>
                         <button onclick="hexEditor.findPrevious()" class="hex-btn hex-btn-small" id="hexFindPrev" disabled>Prev</button>
-                        <button onclick="hexEditor.gotoAddress()" class="hex-btn">Go to Address</button>
-                        <button onclick="hexEditor.saveChanges()" class="hex-btn hex-btn-success" id="hexSaveBtn" disabled>Save Changes</button>
-                        <button onclick="hexEditor.reset()" class="hex-btn hex-btn-warning">Reset Changes</button>
+                    </div>
+                    <div class="hex-toolbar-row">
+                        <input type="text" id="hexGotoInput" placeholder="Address" class="hex-goto-input">
+                        <button onclick="hexEditor.gotoAddress()" class="hex-btn hex-btn-small">Go</button>
+                        <button onclick="hexEditor.saveChanges()" class="hex-btn hex-btn-success hex-btn-small" id="hexSaveBtn" disabled>Save</button>
+                        <button onclick="hexEditor.reset()" class="hex-btn hex-btn-warning hex-btn-small">Reset</button>
                     </div>
                 </div>
                 
@@ -90,9 +89,11 @@ class HexEditor {
             this.totalSize = result.total_size;
             this.offset = result.offset;
 
-            // Update file info
-            document.getElementById('hexSizeInfo').textContent =
-                `Size: ${this.formatSize(this.totalSize)} (${this.totalSize} bytes)`;
+            // Update file info (if element exists)
+            const sizeInfo = document.getElementById('hexSizeInfo');
+            if (sizeInfo) {
+                sizeInfo.textContent = `Size: ${this.formatSize(this.totalSize)} (${this.totalSize} bytes)`;
+            }
 
             // Render hex data
             this.renderHexData(result.data, result.offset);
@@ -533,8 +534,13 @@ class HexEditor {
     }
 
     gotoAddress() {
-        const address = prompt('Enter address (hex, e.g., 1A4F):');
-        if (!address) return;
+        const input = document.getElementById('hexGotoInput');
+        const address = input.value.trim();
+
+        if (!address) {
+            alert('Please enter an address');
+            return;
+        }
 
         const addr = parseInt(address, 16);
         if (isNaN(addr) || addr < 0 || addr >= this.totalSize) {
@@ -544,6 +550,7 @@ class HexEditor {
 
         // Reload from this address
         this.loadData(addr - (addr % this.bytesPerRow));
+        input.value = '';
     }
 
     reset() {
