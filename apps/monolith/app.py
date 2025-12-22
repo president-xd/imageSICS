@@ -12,7 +12,13 @@ app.secret_key = os.urandom(24)
 CORS(app) # Enable CORS just in case, though monolithic
 
 # Configuration
-STORAGE_DIR = os.path.join(os.getcwd(), 'storage')
+# Use /tmp for serverless environments (Vercel), local storage for development
+IS_SERVERLESS = os.getenv('VERCEL_ENV') is not None
+if IS_SERVERLESS:
+    STORAGE_DIR = '/tmp/storage'
+else:
+    STORAGE_DIR = os.path.join(os.getcwd(), 'storage')
+
 UPLOADS_DIR = os.path.join(STORAGE_DIR, 'uploads')
 RESULTS_DIR = os.path.join(STORAGE_DIR, 'results')
 

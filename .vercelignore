@@ -1,0 +1,5 @@
+# Vercel-specific files
+.vercel
+
+# Serverless temp directory
+/tmp/

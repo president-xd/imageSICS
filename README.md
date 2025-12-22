@@ -95,6 +95,17 @@ The application will be available at **http://localhost:8000**
 
 See [INSTALL.md](INSTALL.md) for detailed installation instructions, troubleshooting, and deployment options.
 
+### Deployment
+
+**Deploy to Vercel** (Serverless):
+- See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for step-by-step Vercel deployment guide
+- [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/president-xd/imageSICS)
+
+**Other Deployment Options**:
+- Traditional VPS/Server deployment with Gunicorn or Waitress
+- Docker containerization
+- Cloud platforms (AWS, Google Cloud, Azure)
+
 ---
 
 ## 🎮 Quick Start
