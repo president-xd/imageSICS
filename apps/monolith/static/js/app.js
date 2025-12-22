@@ -294,17 +294,8 @@ async function showFileDigest(container) {
 }
 
 async function showHexEditor(container) {
-    try {
-        const response = await fetch(`/api/forensic/hex?path=${encodeURIComponent(window.appState.currentImagePath)}&lines=16`);
-        const data = await response.json();
-
-        container.innerHTML = `
-            <h4>Hex Dump (First 256 bytes)</h4>
-            <pre style="background: var(--bg-tertiary); padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.75rem; font-family: monospace;">${data.content}</pre>
-        `;
-    } catch (error) {
-        container.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
-    }
+    // Initialize advanced hex editor
+    window.hexEditor = new HexEditor(container, window.appState.currentImagePath);
 }
 
 async function showSimilarSearch(container) {
@@ -750,9 +741,9 @@ async function showMedianFilter(container) {
 async function applyMedianFilter() {
     const kernelSize = parseInt(document.getElementById('kernelSize').value);
     const resultDiv = document.getElementById('medianResult');
-    
+
     resultDiv.innerHTML = '<p class="text-muted">Processing...</p>';
-    
+
     try {
         const response = await fetch('/api/forensic/various/median-filter', {
             method: 'POST',
@@ -762,9 +753,9 @@ async function applyMedianFilter() {
                 kernel_size: kernelSize
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.result_url) {
             resultDiv.innerHTML = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px;">`;
         } else {
@@ -786,9 +777,9 @@ async function showIlluminantMap(container) {
 
 async function computeIlluminant() {
     const resultDiv = document.getElementById('illuminantResult');
-    
+
     resultDiv.innerHTML = '<p class="text-muted">Analyzing illumination...</p>';
-    
+
     try {
         const response = await fetch('/api/forensic/various/illuminant-map', {
             method: 'POST',
@@ -797,9 +788,9 @@ async function computeIlluminant() {
                 image_path: window.appState.currentImagePath
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.result_url) {
             resultDiv.innerHTML = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px;">`;
         } else {
@@ -822,7 +813,7 @@ async function showDeadHotPixels(container) {
         <button class="btn-primary" onclick="detectDefectPixels()">Detect Pixels</button>
         <div id="pixelResult" style="margin-top: 1rem;"></div>
     `;
-    
+
     document.getElementById('pixelThreshold').addEventListener('input', (e) => {
         document.getElementById('thresholdValue').textContent = e.target.value;
     });
@@ -831,9 +822,9 @@ async function showDeadHotPixels(container) {
 async function detectDefectPixels() {
     const threshold = parseFloat(document.getElementById('pixelThreshold').value);
     const resultDiv = document.getElementById('pixelResult');
-    
+
     resultDiv.innerHTML = '<p class="text-muted">Detecting defective pixels...</p>';
-    
+
     try {
         const response = await fetch('/api/forensic/various/dead-hot-pixels', {
             method: 'POST',
@@ -843,12 +834,12 @@ async function detectDefectPixels() {
                 threshold: threshold
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.result_url) {
             let html = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px; margin-bottom: 1rem;">`;
-            
+
             if (data.stats) {
                 html += `
                     <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 4px;">
@@ -861,7 +852,7 @@ async function detectDefectPixels() {
                     </div>
                 `;
             }
-            
+
             resultDiv.innerHTML = html;
         } else {
             resultDiv.innerHTML = `<p class="text-error">Error: ${data.error || 'Unknown error'}</p>`;
@@ -882,9 +873,9 @@ async function showStereogramDecoder(container) {
 
 async function decodeStereogram() {
     const resultDiv = document.getElementById('stereogramResult');
-    
+
     resultDiv.innerHTML = '<p class="text-muted">Decoding stereogram...</p>';
-    
+
     try {
         const response = await fetch('/api/forensic/various/stereogram', {
             method: 'POST',
@@ -893,9 +884,9 @@ async function decodeStereogram() {
                 image_path: window.appState.currentImagePath
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.result_url) {
             resultDiv.innerHTML = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px;">`;
         } else {

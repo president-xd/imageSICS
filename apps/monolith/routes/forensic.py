@@ -57,37 +57,47 @@ def save_bytes_result(data: bytes, prefix: str, ext: str = "jpg") -> str:
 # GENERAL TOOLS
 # ============================================================================
 
-@forensic_bp.route('/hex', methods=['GET'])
+@forensic_bp.route('/hex', methods=['POST'])
 def get_hex_dump():
-    """Hex editor view of file bytes."""
-    path = request.args.get('path')
-    lines = int(request.args.get('lines', 16))
-    
+    """Return hex dump with pagination support for large files."""
     try:
-        if path.startswith("/storage"):
-             clean_path = path.replace("/storage", "", 1).lstrip("/")
-             img_path = STORAGE_DIR / clean_path
+        data = request.json
+        image_path = data.get('image_path', '')
+        offset = data.get('offset', 0)
+        length = data.get('length', 512)  # Default 512 bytes
+        
+        # Get actual file path
+        if image_path.startswith("/storage"):
+            clean_path = image_path.replace("/storage", "", 1).lstrip("/")
+            real_path = STORAGE_DIR / clean_path
         else:
-             img_path = Path(path)
-
-        if not img_path.exists():
-            return jsonify({"error": "File not found"}), 404
-            
-        with open(img_path, "rb") as f:
-            data = f.read(lines * 16)
-            
-        output = []
-        for i in range(0, len(data), 16):
-            chunk = data[i:i+16]
-            offset = f"{i:08x}"
-            hex_vals = " ".join(f"{b:02x}" for b in chunk)
-            padding = "   " * (16 - len(chunk))
-            ascii_vals = "".join(chr(b) if 32 <= b <= 126 else "." for b in chunk)
-            output.append(f"{offset}  {hex_vals}{padding}  |{ascii_vals}|")
-            
-        return jsonify({"content": "\n".join(output)})
+            real_path = Path(image_path)
+        
+        # Check if file exists
+        if not real_path.exists():
+            return jsonify({"error": "File not found", "data": []}), 404
+        
+        # Get file size
+        file_size = os.path.getsize(real_path)
+        
+        # Read chunk from file
+        with open(real_path, 'rb') as f:
+            f.seek(offset)
+            chunk = f.read(length)
+        
+        # Convert to list of byte values
+        byte_data = list(chunk)
+        
+        return jsonify({
+            "data": byte_data,
+            "offset": offset,
+            "length": len(byte_data),
+            "total_size": file_size,
+            "has_more": (offset + len(byte_data)) < file_size
+        })
+        
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e), "data": []}), 500
 
 @forensic_bp.route('/digest', methods=['POST'])
 def run_digest():
