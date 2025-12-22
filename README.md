@@ -247,59 +247,6 @@ The `imagesics-core` package contains 20 specialized forensic modules:
 
 ---
 
-## 📚 API Documentation
-
-### Upload Image
-
-```http
-POST /api/uploads/
-Content-Type: multipart/form-data
-
-file: <image_file>
-```
-
-**Response:**
-```json
-{
-  "path": "/storage/uploads/uuid_filename.jpg",
-  "filename": "filename.jpg"
-}
-```
-
-### Run Forensic Analysis
-
-```http
-POST /api/forensic/{category}/{tool}
-Content-Type: application/json
-
-{
-  "image_path": "/storage/uploads/uuid_filename.jpg",
-  "parameters": {...}
-}
-```
-
-**Example - Error Level Analysis:**
-```http
-POST /api/forensic/jpeg/ela
-{
-  "image_path": "/storage/uploads/test.jpg",
-  "quality": 90
-}
-```
-
-**Response:**
-```json
-{
-  "result_url": "/storage/results/ela_uuid.jpg"
-}
-```
-
-### Available Endpoints
-
-See [API.md](docs/API.md) for complete API documentation.
-
----
-
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
