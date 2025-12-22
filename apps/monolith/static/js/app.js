@@ -198,6 +198,10 @@ async function loadToolInterface(toolName, category, container) {
         'Global Adjustments': showGlobalAdjustments,
         'Reference Comparison': showReferenceComparison,
         'Contrast Enhancement': showContrastEnhancement,
+        'Median Filtering': showMedianFilter,
+        'Illuminant Map': showIlluminantMap,
+        'Dead/Hot Pixels': showDeadHotPixels,
+        'Stereogram Decoder': showStereogramDecoder,
 
         // Detail
         'Luminance Gradient': showLuminanceGradient,
@@ -719,3 +723,185 @@ async function showFrequencySplit(container) {
 }
 
 // Continue in next file...
+
+// ============================================================================
+// VARIOUS TOOLS
+// ============================================================================
+
+async function showMedianFilter(container) {
+    container.innerHTML = `
+        <h4>Median Filtering</h4>
+        <p class="text-muted">Apply median filter for noise reduction</p>
+        <div class="form-group">
+            <label class="form-label">Kernel Size:</label>
+            <select id="kernelSize" class="form-control">
+                <option value="3">3x3</option>
+                <option value="5" selected>5x5</option>
+                <option value="7">7x7</option>
+                <option value="9">9x9</option>
+                <option value="11">11x11</option>
+            </select>
+        </div>
+        <button class="btn-primary" onclick="applyMedianFilter()">Apply Filter</button>
+        <div id="medianResult" style="margin-top: 1rem;"></div>
+    `;
+}
+
+async function applyMedianFilter() {
+    const kernelSize = parseInt(document.getElementById('kernelSize').value);
+    const resultDiv = document.getElementById('medianResult');
+    
+    resultDiv.innerHTML = '<p class="text-muted">Processing...</p>';
+    
+    try {
+        const response = await fetch('/api/forensic/various/median-filter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_path: window.appState.currentImagePath,
+                kernel_size: kernelSize
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.result_url) {
+            resultDiv.innerHTML = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px;">`;
+        } else {
+            resultDiv.innerHTML = `<p class="text-error">Error: ${data.error || 'Unknown error'}</p>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
+    }
+}
+
+async function showIlluminantMap(container) {
+    container.innerHTML = `
+        <h4>Illuminant Map</h4>
+        <p class="text-muted">Estimate light source and illumination</p>
+        <button class="btn-primary" onclick="computeIlluminant()">Analyze Illumination</button>
+        <div id="illuminantResult" style="margin-top: 1rem;"></div>
+    `;
+}
+
+async function computeIlluminant() {
+    const resultDiv = document.getElementById('illuminantResult');
+    
+    resultDiv.innerHTML = '<p class="text-muted">Analyzing illumination...</p>';
+    
+    try {
+        const response = await fetch('/api/forensic/various/illuminant-map', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_path: window.appState.currentImagePath
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.result_url) {
+            resultDiv.innerHTML = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px;">`;
+        } else {
+            resultDiv.innerHTML = `<p class="text-error">Error: ${data.error || 'Unknown error'}</p>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
+    }
+}
+
+async function showDeadHotPixels(container) {
+    container.innerHTML = `
+        <h4>Dead/Hot Pixels Detection</h4>
+        <p class="text-muted">Detect camera sensor defects</p>
+        <div class="form-group">
+            <label class="form-label">Sensitivity Threshold:</label>
+            <input type="range" id="pixelThreshold" min="10" max="100" value="50" step="5" class="form-control">
+            <span id="thresholdValue">50</span>
+        </div>
+        <button class="btn-primary" onclick="detectDefectPixels()">Detect Pixels</button>
+        <div id="pixelResult" style="margin-top: 1rem;"></div>
+    `;
+    
+    document.getElementById('pixelThreshold').addEventListener('input', (e) => {
+        document.getElementById('thresholdValue').textContent = e.target.value;
+    });
+}
+
+async function detectDefectPixels() {
+    const threshold = parseFloat(document.getElementById('pixelThreshold').value);
+    const resultDiv = document.getElementById('pixelResult');
+    
+    resultDiv.innerHTML = '<p class="text-muted">Detecting defective pixels...</p>';
+    
+    try {
+        const response = await fetch('/api/forensic/various/dead-hot-pixels', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_path: window.appState.currentImagePath,
+                threshold: threshold
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.result_url) {
+            let html = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px; margin-bottom: 1rem;">`;
+            
+            if (data.stats) {
+                html += `
+                    <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 4px;">
+                        <h5 style="margin: 0 0 0.5rem 0;">Detection Statistics:</h5>
+                        <table class="result-table" style="font-size: 0.8rem;">
+                            <tr><td><strong>Dead Pixels (Blue)</strong></td><td>${data.stats.dead_pixels} (${data.stats.dead_percentage.toFixed(4)}%)</td></tr>
+                            <tr><td><strong>Hot Pixels (Red)</strong></td><td>${data.stats.hot_pixels} (${data.stats.hot_percentage.toFixed(4)}%)</td></tr>
+                            <tr><td><strong>Total Pixels</strong></td><td>${data.stats.total_pixels.toLocaleString()}</td></tr>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = html;
+        } else {
+            resultDiv.innerHTML = `<p class="text-error">Error: ${data.error || 'Unknown error'}</p>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
+    }
+}
+
+async function showStereogramDecoder(container) {
+    container.innerHTML = `
+        <h4>Stereogram Decoder</h4>
+        <p class="text-muted">Extract hidden 3D image from autostereogram</p>
+        <button class="btn-primary" onclick="decodeStereogram()">Decode Stereogram</button>
+        <div id="stereogramResult" style="margin-top: 1rem;"></div>
+    `;
+}
+
+async function decodeStereogram() {
+    const resultDiv = document.getElementById('stereogramResult');
+    
+    resultDiv.innerHTML = '<p class="text-muted">Decoding stereogram...</p>';
+    
+    try {
+        const response = await fetch('/api/forensic/various/stereogram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_path: window.appState.currentImagePath
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.result_url) {
+            resultDiv.innerHTML = `<img src="${data.result_url}" style="width: 100%; border-radius: 4px;">`;
+        } else {
+            resultDiv.innerHTML = `<p class="text-error">Error: ${data.error || 'Unknown error'}</p>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
+    }
+}

@@ -33,7 +33,8 @@ TOOLS = [
     { "name": "Colors", "tool_list": ["RGB/HSV Plots", "Space Conversion", "PCA Projection", "Pixel Statistics"] },
     { "name": "Noise", "tool_list": ["Signal Separation", "Min/Max Deviation", "Bit Plane Values", "PRNU Identification"] },
     { "name": "JPEG", "tool_list": ["Quality Estimation", "Error Level Analysis", "JPEG Ghost Map", "Multiple Compression"] },
-    { "name": "Tampering", "tool_list": ["Copy-Move Forgery", "Image Splicing", "Image Resampling"] }
+    { "name": "Tampering", "tool_list": ["Copy-Move Forgery", "Image Splicing", "Image Resampling"] },
+    { "name": "Various", "tool_list": ["Median Filtering", "Illuminant Map", "Dead/Hot Pixels", "Stereogram Decoder"] }
 ]
 
 @app.route('/')

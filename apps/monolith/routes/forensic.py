@@ -267,6 +267,80 @@ def run_reverse_search():
 
 
 # ============================================================================
+# VARIOUS TOOLS
+# ============================================================================
+
+@forensic_bp.route('/various/median-filter', methods=['POST'])
+def median_filtering():
+    """Apply median filter for noise reduction."""
+    try:
+        img = load_image(request.json.get('image_path'))
+        kernel_size = request.json.get('kernel_size', 5)
+        
+        from imagesics_core.forensic.various import apply_median_filter
+        
+        result_bytes = apply_median_filter(img, kernel_size)
+        result_url = save_bytes_result(result_bytes, "median_filter", "jpg")
+        
+        return jsonify({"result_url": result_url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@forensic_bp.route('/various/illuminant-map', methods=['POST'])
+def illuminant_map():
+    """Estimate illumination map."""
+    try:
+        img = load_image(request.json.get('image_path'))
+        
+        from imagesics_core.forensic.various import estimate_illuminant_map
+        
+        result_bytes = estimate_illuminant_map(img)
+        result_url = save_bytes_result(result_bytes, "illuminant", "jpg")
+        
+        return jsonify({"result_url": result_url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@forensic_bp.route('/various/dead-hot-pixels', methods=['POST'])
+def dead_hot_pixels():
+    """Detect sensor defects."""
+    try:
+        img = load_image(request.json.get('image_path'))
+        threshold = request.json.get('threshold', 50.0)
+        
+        from imagesics_core.forensic.various import detect_dead_hot_pixels
+        
+        result_bytes, stats = detect_dead_hot_pixels(img, threshold)
+        result_url = save_bytes_result(result_bytes, "dead_hot_pixels", "jpg")
+        
+        return jsonify({
+            "result_url": result_url,
+            "stats": stats
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@forensic_bp.route('/various/stereogram', methods=['POST'])
+def stereogram_decoder():
+    """Decode autostereogram."""
+    try:
+        img = load_image(request.json.get('image_path'))
+        
+        from imagesics_core.forensic.various import decode_stereogram
+        
+        result_bytes = decode_stereogram(img)
+        result_url = save_bytes_result(result_bytes, "stereogram", "jpg")
+        
+        return jsonify({"result_url": result_url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+# ============================================================================
 # METADATA TOOLS
 # ============================================================================
 
