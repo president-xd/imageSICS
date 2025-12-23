@@ -5,7 +5,7 @@
 [![Flask](https://img.shields.io/badge/Flask-3.0-black?style=for-the-badge&logo=flask)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-**A comprehensive web-based image forensic analysis toolkit for detecting tampering, verifying authenticity, and analyzing digital images.**
+**A web-based image forensic analysis framework for detecting tampering, verifying authenticity, and analyzing digital images.**
 
 ---
 
